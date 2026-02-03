@@ -1,0 +1,7 @@
+[package]
+name = "git-brdi"
+version = "0.1.0"
+edition = "2021"
+description = "Interactively delete git branches sorted by last-touched date"
+
+[dependencies]
