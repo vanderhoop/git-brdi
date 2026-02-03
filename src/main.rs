@@ -37,7 +37,7 @@ fn local_branches() -> Vec<Branch> {
     let output = Command::new("git")
         .args([
             "for-each-ref",
-            "--sort=-committerdate",
+            "--sort=committerdate",
             "--format=%(committerdate:relative)\t%(refname:short)",
             "refs/heads/",
         ])
