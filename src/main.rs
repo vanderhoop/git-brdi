@@ -65,27 +65,27 @@ fn local_branches() -> Vec<Branch> {
         .collect()
 }
 
-fn delete_branch(name: &str) -> Result<(), String> {
+fn delete_branch(name: &str) -> Result<String, String> {
     let output = Command::new("git")
         .args(["branch", "-d", name])
         .output()
         .expect("failed to run git");
 
     if output.status.success() {
-        Ok(())
+        Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())
     } else {
         Err(String::from_utf8_lossy(&output.stderr).trim().to_string())
     }
 }
 
-fn force_delete_branch(name: &str) -> Result<(), String> {
+fn force_delete_branch(name: &str) -> Result<String, String> {
     let output = Command::new("git")
         .args(["branch", "-D", name])
         .output()
         .expect("failed to run git");
 
     if output.status.success() {
-        Ok(())
+        Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())
     } else {
         Err(String::from_utf8_lossy(&output.stderr).trim().to_string())
     }
@@ -119,7 +119,7 @@ fn main() {
     for (i, branch) in branches.iter().enumerate() {
         let answer = loop {
             let a = prompt(&format!(
-                "\x1b[1m({}/{}) Delete {} (last touched {}) [y,n,q]?\x1b[0m ",
+                "\x1b[1m({}/{}) Delete {} (last touched {}) [y,n,q,?]?\x1b[0m ",
                 i + 1,
                 total,
                 branch.name,
@@ -130,6 +130,7 @@ fn main() {
                     "y - delete this branch\n\
                      n - skip this branch\n\
                      q - quit\n\
+                     ? - print help"
                 );
                 continue;
             }
@@ -138,17 +139,22 @@ fn main() {
 
         match answer.as_str() {
             "y" => match delete_branch(&branch.name) {
-                Ok(()) => {
-                    println!("    Deleted {}.", branch.name);
+                Ok(out) => {
+                    println!("    {}", out);
                     deleted += 1;
                 }
                 Err(e) => {
-                    println!("    Failed: {}", e);
+                    let msg: String = e
+                        .lines()
+                        .filter(|l| !l.starts_with("hint:"))
+                        .collect::<Vec<_>>()
+                        .join("\n");
+                    println!("    Failed: {}", msg);
                     let retry = prompt("    Force delete? [y/n]: ");
                     if retry == "y" {
                         match force_delete_branch(&branch.name) {
-                            Ok(()) => {
-                                println!("    Force-deleted {}.", branch.name);
+                            Ok(out) => {
+                                println!("    {}", out);
                                 deleted += 1;
                             }
                             Err(e2) => println!("    Force-delete failed: {}", e2),
