@@ -88,7 +88,7 @@ fn main() {
     for (i, branch) in branches.iter().enumerate() {
         let answer = loop {
             let a = prompt(&format!(
-                "({}/{}) Delete {} (last touched {}) [y,n,f,q,?]?",
+                "\x1b[1m({}/{}) Delete {} (last touched {}) [y,n,f,q,?]?\x1b[0m ",
                 i + 1, total, branch.name, branch.relative_date
             ));
             if a == "?" {
