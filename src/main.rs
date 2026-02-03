@@ -119,16 +119,17 @@ fn main() {
     for (i, branch) in branches.iter().enumerate() {
         let answer = loop {
             let a = prompt(&format!(
-                "\x1b[1m({}/{}) Delete {} (last touched {}) [y,n,f,q,?]?\x1b[0m ",
-                i + 1, total, branch.name, branch.relative_date
+                "\x1b[1m({}/{}) Delete {} (last touched {}) [y,n,q]?\x1b[0m ",
+                i + 1,
+                total,
+                branch.name,
+                branch.relative_date
             ));
             if a == "?" {
                 println!(
                     "y - delete this branch\n\
                      n - skip this branch\n\
-                     f - force delete this branch\n\
                      q - quit\n\
-                     ? - print help"
                 );
                 continue;
             }
@@ -154,13 +155,6 @@ fn main() {
                         }
                     }
                 }
-            },
-            "f" => match force_delete_branch(&branch.name) {
-                Ok(()) => {
-                    println!("    Force-deleted {}.", branch.name);
-                    deleted += 1;
-                }
-                Err(e) => println!("    Failed: {}", e),
             },
             "q" => {
                 println!("Quit.");
