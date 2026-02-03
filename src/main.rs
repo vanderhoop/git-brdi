@@ -6,6 +6,33 @@ struct Branch {
     relative_date: String,
 }
 
+/// Returns the default branch by checking what origin/HEAD points to.
+/// Falls back to "main" then "master" if no remote is configured.
+fn default_branch() -> Option<String> {
+    let output = Command::new("git")
+        .args(["symbolic-ref", "refs/remotes/origin/HEAD"])
+        .output()
+        .ok()?;
+
+    if output.status.success() {
+        let full = String::from_utf8_lossy(&output.stdout).trim().to_string();
+        return full.strip_prefix("refs/remotes/origin/").map(String::from);
+    }
+
+    // No remote HEAD — check if main or master exists locally
+    for name in ["main", "master"] {
+        let check = Command::new("git")
+            .args(["rev-parse", "--verify", &format!("refs/heads/{}", name)])
+            .output()
+            .ok()?;
+        if check.status.success() {
+            return Some(name.to_string());
+        }
+    }
+
+    None
+}
+
 fn local_branches() -> Vec<Branch> {
     let output = Command::new("git")
         .args([
@@ -73,10 +100,14 @@ fn prompt(msg: &str) -> String {
 }
 
 fn main() {
-    let branches = local_branches();
+    let default = default_branch();
+    let branches: Vec<Branch> = local_branches()
+        .into_iter()
+        .filter(|b| default.as_ref() != Some(&b.name))
+        .collect();
 
     if branches.is_empty() {
-        println!("No branches found.");
+        println!("No branches to delete.");
         return;
     }
 
