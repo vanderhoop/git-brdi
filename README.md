@@ -17,7 +17,7 @@ Done. Deleted 1 branch, skipped 1.
 ## Install
 
 ```sh
-cargo install --path .
+cargo install git-brdi
 ```
 
 This installs the `git-brdi` binary. Because it follows the `git-<name>` convention, git picks it up as a subcommand:
