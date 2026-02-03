@@ -1,7 +1,13 @@
 [package]
 name = "git-brdi"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 description = "Interactively delete git branches sorted by last-touched date"
+license = "MIT"
+homepage = "https://github.com/vanderhoop/git-brdi"
+repository = "https://github.com/vanderhoop/git-brdi"
+readme = "README.md"
+keywords = ["git", "branch", "cli", "interactive"]
+categories = ["command-line-utilities", "development-tools"]
 
 [dependencies]
