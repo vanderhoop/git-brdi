@@ -33,11 +33,17 @@ fn default_branch() -> Option<String> {
     None
 }
 
-fn local_branches() -> Vec<Branch> {
+fn local_branches(reverse: bool) -> Vec<Branch> {
+    let sort = if reverse {
+        "--sort=-committerdate"
+    } else {
+        "--sort=committerdate"
+    };
+
     let output = Command::new("git")
         .args([
             "for-each-ref",
-            "--sort=committerdate",
+            sort,
             "--format=%(committerdate:relative)\t%(refname:short)",
             "refs/heads/",
         ])
@@ -100,8 +106,10 @@ fn prompt(msg: &str) -> String {
 }
 
 fn main() {
+    let reverse = std::env::args().any(|a| a == "--reverse" || a == "-r");
+
     let default = default_branch();
-    let branches: Vec<Branch> = local_branches()
+    let branches: Vec<Branch> = local_branches(reverse)
         .into_iter()
         .filter(|b| default.as_ref() != Some(&b.name))
         .collect();
